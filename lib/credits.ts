@@ -1,6 +1,6 @@
-import { PrismaClient } from "@prisma/client"
+// import { PrismaClient } from "@prisma/client"
 
-const prisma = new PrismaClient()
+// const prisma = new PrismaClient()
 
 export interface CreditBalance {
   total: number
@@ -9,57 +9,73 @@ export interface CreditBalance {
 }
 
 export async function getUserCredits(userId: string): Promise<CreditBalance> {
-  const credits = await prisma.credit.findMany({
-    where: { userId },
-    orderBy: { createdAt: "desc" }
-  })
-
-  const total = credits.reduce((sum, credit) => {
-    if (credit.type === "purchase" || credit.type === "bonus") {
-      return sum + credit.amount
-    } else if (credit.type === "consumption") {
-      return sum - credit.amount
-    }
-    return sum
-  }, 0)
-
-  const used = credits
-    .filter(credit => credit.type === "consumption")
-    .reduce((sum, credit) => sum + credit.amount, 0)
-
+  // Mock implementation for testing without database
+  console.log('getUserCredits called with userId:', userId)
   return {
-    total: Math.max(0, total),
-    available: Math.max(0, total),
-    used
+    total: 10,
+    available: 10,
+    used: 0
   }
+  
+  // const credits = await prisma.credit.findMany({
+  //   where: { userId },
+  //   orderBy: { createdAt: "desc" }
+  // })
+
+  // const total = credits.reduce((sum, credit) => {
+  //   if (credit.type === "purchase" || credit.type === "bonus") {
+  //     return sum + credit.amount
+  //   } else if (credit.type === "consumption") {
+  //     return sum - credit.amount
+  //   }
+  //   return sum
+  // }, 0)
+
+  // const used = credits
+  //   .filter(credit => credit.type === "consumption")
+  //   .reduce((sum, credit) => sum + credit.amount, 0)
+
+  // return {
+  //   total: Math.max(0, total),
+  //   available: Math.max(0, total),
+  //   used
+  // }
 }
 
 export async function addCredits(userId: string, amount: number, type: "purchase" | "bonus" = "purchase") {
-  return await prisma.credit.create({
-    data: {
-      userId,
-      amount,
-      type
-    }
-  })
+  // Mock implementation for testing without database
+  console.log('addCredits called:', { userId, amount, type })
+  return { id: 'mock-id', userId, amount, type, createdAt: new Date() }
+  
+  // return await prisma.credit.create({
+  //   data: {
+  //     userId,
+  //     amount,
+  //     type
+  //   }
+  // })
 }
 
 export async function consumeCredits(userId: string, amount: number): Promise<boolean> {
-  const balance = await getUserCredits(userId)
-  
-  if (balance.available < amount) {
-    return false
-  }
-
-  await prisma.credit.create({
-    data: {
-      userId,
-      amount,
-      type: "consumption"
-    }
-  })
-
+  // Mock implementation for testing without database
+  console.log('consumeCredits called:', { userId, amount })
   return true
+  
+  // const balance = await getUserCredits(userId)
+  
+  // if (balance.available < amount) {
+  //   return false
+  // }
+
+  // await prisma.credit.create({
+  //   data: {
+  //     userId,
+  //     amount,
+  //     type: "consumption"
+  //   }
+  // })
+
+  // return true
 }
 
 export async function createTransaction(
@@ -69,26 +85,34 @@ export async function createTransaction(
   price: number,
   status: "pending" | "completed" | "failed" = "pending"
 ) {
-  return await prisma.transaction.create({
-    data: {
-      userId,
-      stripeId,
-      amount,
-      price,
-      status
-    }
-  })
+  // Mock implementation for testing without database
+  console.log('createTransaction called:', { userId, stripeId, amount, price, status })
+  return { id: 'mock-transaction-id', userId, stripeId, amount, price, status, createdAt: new Date() }
+  
+  // return await prisma.transaction.create({
+  //   data: {
+  //     userId,
+  //     stripeId,
+  //     amount,
+  //     price,
+  //     status
+  //   }
+  // })
 }
 
 export async function updateTransactionStatus(
   transactionId: string,
   status: "completed" | "failed"
 ) {
-  return await prisma.transaction.update({
-    where: { id: transactionId },
-    data: {
-      status,
-      completedAt: status === "completed" ? new Date() : null
-    }
-  })
+  // Mock implementation for testing without database
+  console.log('updateTransactionStatus called:', { transactionId, status })
+  return { id: transactionId, status, completedAt: status === "completed" ? new Date() : null }
+  
+  // return await prisma.transaction.update({
+  //   where: { id: transactionId },
+  //   data: {
+  //     status,
+  //     completedAt: status === "completed" ? new Date() : null
+  //   }
+  // })
 }
