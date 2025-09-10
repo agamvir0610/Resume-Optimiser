@@ -28,7 +28,8 @@ export async function callModelWithRetries(prompt: string, retries = 2): Promise
         });
       }
 
-      const completion = await openai.chat.completions.create({
+      const client = getOpenAIClient();
+      const completion = await client.chat.completions.create({
         model: 'gpt-4o-mini',
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.2,
