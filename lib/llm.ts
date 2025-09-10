@@ -1,14 +1,26 @@
 import OpenAI from 'openai';
 import { JobRequirements, OptimizationResult } from './schema';
 
-const apiKey = process.env.OPENAI_API_KEY;
-console.log('API Key length:', apiKey?.length);
-console.log('API Key starts with sk-:', apiKey?.startsWith('sk-'));
-console.log('API Key format check:', apiKey?.match(/^sk-proj-[a-zA-Z0-9_-]{48,}$/));
+// Lazy initialization of OpenAI client to avoid build-time errors
+let openai: OpenAI | null = null;
 
-const openai = new OpenAI({
-  apiKey: apiKey,
-});
+function getOpenAIClient(): OpenAI {
+  if (!openai) {
+    const apiKey = process.env.OPENAI_API_KEY;
+    console.log('API Key length:', apiKey?.length);
+    console.log('API Key starts with sk-:', apiKey?.startsWith('sk-'));
+    console.log('API Key format check:', apiKey?.match(/^sk-proj-[a-zA-Z0-9_-]{48,}$/));
+    
+    if (!apiKey) {
+      throw new Error('OPENAI_API_KEY environment variable is not set');
+    }
+    
+    openai = new OpenAI({
+      apiKey: apiKey,
+    });
+  }
+  return openai;
+}
 
 export async function callModelWithRetries(prompt: string, retries = 2): Promise<string> {
   let attempt = 0;
